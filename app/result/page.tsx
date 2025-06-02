@@ -1,17 +1,19 @@
-import { useRouter } from 'next/router';
+"use client"
+import { useRouter,useParams } from 'next/navigation';
 import Head from 'next/head';
 
 export default function Result() {
   const router = useRouter();
-  const { score, total } = router.query;
+  const params = useParams();
+  const { score, total } = params;
 
   const numericScore = typeof score === 'string' ? parseInt(score) : 0;
   const numericTotal = typeof total === 'string' ? parseInt(total) : 1;
   const percentage = Math.round((numericScore / numericTotal) * 100);
 
-  const restartPractice = () => {
-    router.push('/practice');
-  };
+  // const restartPractice = () => {
+  //   router.push('/practice');
+  // };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
@@ -61,14 +63,14 @@ export default function Result() {
           </div>
         </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={restartPractice}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
-          >
-            重新练习
-          </button>
-        </div>
+        {/*<div className="flex justify-center">*/}
+        {/*  <button*/}
+        {/*    onClick={restartPractice}*/}
+        {/*    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"*/}
+        {/*  >*/}
+        {/*    重新练习*/}
+        {/*  </button>*/}
+        {/*</div>*/}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Question } from '../pages/practice';
+// import { Question } from '../practice/page';
 
 interface QuestionCardProps {
   question: Question;
@@ -6,14 +6,24 @@ interface QuestionCardProps {
   isCorrect: boolean | null;
   onSelect: (option: string) => void;
 }
+export interface Question {
+  序号: string;
+  题目板块: string;
+  难度系数: string;
+  题目内容: string;
+  题目答案: string;
+  选项: string[];
+  题目解析: string;
+  文件根据: string;
+}
 
 export default function QuestionCard({ question, selectedOption, isCorrect, onSelect }: QuestionCardProps) {
   return (
     <div className="border border-gray-200 rounded-lg p-6">
-      <h2 className=" md:text-l sm:text-[12px] font-semibold text-gray-800 mb-6">{question.题目内容}</h2>
+      <h2 className=" md:text-l sm:text-[12px] font-semibold text-gray-800 mb-6">{question?.["题目内容"]}</h2>
 
       <div className="space-y-3 text-[#000] ">
-        {question.选项.map((option, index) => {
+        {question?.选项?.map((option, index) => {
           const optionLetter = String.fromCharCode(65 + index);
           const isSelected = selectedOption === optionLetter;
           let optionClass = "p-3 border rounded-lg cursor-pointer hover:bg-blue-50 hover:text-blue";

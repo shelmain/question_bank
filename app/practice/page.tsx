@@ -31,7 +31,7 @@ export default function Practice() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/asset/single_choice_data.xlsx');
+        const response = await fetch('/asset/multiple_choice_data.xlsx');
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
@@ -39,35 +39,30 @@ export default function Practice() {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        console.log(jsonData)
+
         // 处理数据格式
-        const formattedQuestions:any[] = jsonData.map((item: any) => {
-          // 提取选项 - 从__EMPTY_5到__EMPTY_12对应A-H选项
+        const formattedQuestions = jsonData.map((item: any) => {
           const options = [];
-          for (let i = 5; i <= 8; i++) {
-            const optionKey = `__EMPTY_${i}`;
-            if (item[optionKey] && item[optionKey]) {
+          for (let i = 0; i < 8; i++) {
+            const optionKey = String.fromCharCode(65 + i);
+            if (item[optionKey]) {
               options.push(item[optionKey]);
             }
           }
 
-          // 确保题目内容存在且不是空字符串
-          const questionContent = item["__EMPTY_3"];
-          if (!questionContent) return null;
           return {
-            序号: item["__EMPTY"]?.toString() || '',
-            题目板块: item["__EMPTY_1"]?.toString() || '',
-            难度系数: item["__EMPTY_2"]?.toString() || '',
-            题目内容: item["__EMPTY_3"]?.toString() || '',
-            题目答案: item["__EMPTY_4"]?.toString() || '',
+            序号: item['序号(必填)'],
+            题目板块: item['题目板块(必填)'],
+            难度系数: item['难度系数(必填)'],
+            题目内容: item['题目内容(必填)'],
+            题目答案: item['题目答案(必填)'],
             选项: options,
-            题目解析: item["__EMPTY_13"]?.toString() || '',
-            文件根据: item["__EMPTY_14"]?.toString() || ''
+            题目解析: item['题目解析(必填)'],
+            文件根据: item['文件根据(必填)']
           };
-        }).filter((q: any) => q !== null); // 过滤掉无效数据
-        console.log(formattedQuestions)
+        }).filter((q: any) => q.题目内容); // 过滤掉空数据
 
-        setQuestions(formattedQuestions.slice(1,formattedQuestions.length) || []);
+        setQuestions(formattedQuestions);
         setLoaded(true);
       } catch (error) {
         console.error('Error loading Excel file:', error);
@@ -101,9 +96,8 @@ export default function Practice() {
       setCurrentIndex(prev => prev + 1);
     } else {
       // 所有题目完成，跳转到结果页
-      router.push(`/result?score=${score}&total=${questions.length}`,
-      );
-    }
+      router.push(`/result?score=${score}&total=${questions.length}`)
+   }
   };
 
   if (!loaded) {
