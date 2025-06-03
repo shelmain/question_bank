@@ -113,7 +113,7 @@ export default function Practice() {
     if(item){
       setSelectedOptions(item.yourAnswer);
       setIsCorrect(item.isCorrect);
-      setShowExplanation(item.isCorrect === null);
+      setShowExplanation(item.isCorrect !== null);
       return;
     }
     setSelectedOptions([]);
