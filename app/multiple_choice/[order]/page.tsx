@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import Head from "next/head";
-import ProgressBar from "../components/ProgressBar";
-import MultipleQuestionCard from "../components/MultipleQuestionCard";
+import ProgressBar from "../../components/ProgressBar";
+import MultipleQuestionCard from "../../components/MultipleQuestionCard";
+import Link from "next/link";
+import {Button} from "antd";
 
 interface Question {
   序号: string;
@@ -17,7 +19,7 @@ interface Question {
   文件根据: string;
 }
 
-export default function Practice() {
+export default  function Practice({params}:{params:{ order: string }}) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -28,10 +30,15 @@ export default function Practice() {
   const currentQuestion = questions[currentIndex];
   const [orderNumber,setOrderNumber] = useState(0);
   const router = useRouter();
+  const {order } =  params;
 
   useEffect(() => {
-    const orderNumber = localStorage.getItem("multipleNumber") ? JSON.parse(localStorage.getItem("multipleNumber") || ""):0;
-    setOrderNumber(orderNumber||0)
+    if(order == "-1"){
+      const orderNumber = localStorage.getItem("multipleNumber") ? JSON.parse(localStorage.getItem("multipleNumber") || ""):0;
+      setOrderNumber(orderNumber||0)
+    }else{
+      setOrderNumber(+order)
+    }
     setCurrentIndex(localStorage.getItem("currentMultipleIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentMultipleIndex"+orderNumber) || ""):  0)
     setScore(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
     const fetchData = async () => {
@@ -158,6 +165,11 @@ export default function Practice() {
         </Head>
 
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <Link className=" flex justify-end items-content gap-2 text-blue-500 text-[14px] mb-3
+            " href="/wrong_question/multiple" passHref>
+              <Button type="primary" size="small" className="bg-blue-500 font-bold hover:bg-blue-700 text-white">
+                历史练习记录
+              </Button></Link>
           <ProgressBar progress={progress} />
 
           <div className="mb-6">
