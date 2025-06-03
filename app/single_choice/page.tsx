@@ -78,19 +78,18 @@ export default function Practice() {
   }, []);
 
   const handleOptionSelect = (option: string) => {
-    //存答案
+
+    if (isCorrect !== null) return; // 已经回答过的不再处理
+
+//存答案
     const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer") || "[]");
     console.log(historyAnswer);
-    localStorage.setItem("yourAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option}]));
+    localStorage.setItem("yourAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option,isCorrect}]));
     localStorage.setItem("currentIndex", JSON.stringify(currentIndex));
-    if (isCorrect !== null) return; // 已经回答过的不再处理
-    console.log(currentIndex);
-
     setSelectedOption(option);
     const correct = option === questions[currentIndex].题目答案;
     setIsCorrect(correct);
     setShowExplanation(true);
-    console.log(correct)
 
     if (correct) {
       setScore(prev => prev + 1);
