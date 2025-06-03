@@ -25,11 +25,17 @@ export default function Practice() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [loaded, setLoaded] = useState(false);
-
+  const [orderNumber,setOrderNumber] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
-    setCurrentIndex(localStorage.getItem("currentIndex")?JSON.parse(localStorage.getItem("currentIndex") || "") + 1:  0)
+    getHistoryData(currentIndex);
+  }, [currentIndex]);
+  useEffect(() => {
+    const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
+    setOrderNumber(orderNumber||0)
+    setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
+    setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
     const fetchData = async () => {
       try {
         const response = await fetch('/asset/single_choice_data.xlsx');
@@ -66,7 +72,6 @@ export default function Practice() {
             文件根据: item["__EMPTY_14"]?.toString() || ''
           };
         }).filter((q: any) => q !== null); // 过滤掉无效数据
-        console.log(formattedQuestions)
 
         setQuestions(formattedQuestions.slice(1,formattedQuestions.length) || []);
         setLoaded(true);
@@ -82,33 +87,77 @@ export default function Practice() {
 
     if (isCorrect !== null) return; // 已经回答过的不再处理
 
-//存答案
-    const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer") || "[]");
-    console.log(historyAnswer);
-    localStorage.setItem("yourAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option,isCorrect}]));
-    localStorage.setItem("currentIndex", JSON.stringify(currentIndex));
+
     setSelectedOption(option);
     const correct = option === questions[currentIndex].题目答案;
     setIsCorrect(correct);
     setShowExplanation(true);
-
+//存答案
+    const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]");
+    console.log("存答案",currentIndex);
+    localStorage.setItem("yourAnswer"+orderNumber, JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option,isCorrect:correct}]));
+    localStorage.setItem("currentIndex"+orderNumber, JSON.stringify(currentIndex));
     if (correct) {
       setScore(prev => prev + 1);
+      setTimeout(() => {
+        setSelectedOption(null);
+        setIsCorrect(null);
+        setShowExplanation(false);
+
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex((prev:number) => prev + 1);
+        } else {
+          //记录练习了几次
+          localStorage.setItem("singleNumber", JSON.stringify(orderNumber+1) );
+          // 下一次重制为零
+          localStorage.setItem("currentIndex"+(orderNumber+1), JSON.stringify(0));
+          // 所有题目完成，跳转到结果页
+          router.push(`/result/${score}/${questions.length}`,
+          );
+        }
+      },500)
+
     }
   };
+  // 上一页
+  const handlePreviousQuestion = ()=>{
+    // getHistoryData(currentIndex -1)
+    setCurrentIndex((prev:number) => prev - 1);
 
-  const handleNextQuestion = () => {
-    if (isCorrect === null) return;
-
+  }
+  // 获取之前做题的数据
+  const getHistoryData = (targetIndex:number)=>{
+    if(questions.length < 1 ) return;
+    console.log("<UNK>",targetIndex,currentIndex,questions);
+    const index = questions[targetIndex].序号;
+    const allData = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]");
+    console.log("index",allData)
+    const item = allData?.find((i:any)=>i.序号 === index);
+    if(item){
+      setSelectedOption(item.yourAnswer);
+      setIsCorrect(item.isCorrect);
+      setShowExplanation(item.isCorrect === null);
+      return;
+    }
     setSelectedOption(null);
     setIsCorrect(null);
     setShowExplanation(false);
 
+  }
+  // 下一页
+  const handleNextQuestion = () => {
+    if (isCorrect === null) return;
     if (currentIndex < questions.length - 1) {
+      // getHistoryData(currentIndex+1);
       setCurrentIndex((prev:number) => prev + 1);
     } else {
+     //记录练习了几次
+      localStorage.setItem("singleNumber", JSON.stringify(orderNumber+1) );
+      console.log(orderNumber,"currentIndex"+(orderNumber+1));
+      // 下一次重制为零
+      localStorage.setItem("currentIndex"+(orderNumber+1), JSON.stringify(0));
       // 所有题目完成，跳转到结果页
-      router.push(`/result?score=${score}&total=${questions.length}`,
+      router.push(`/result/${score}/${questions.length}`,
       );
     }
   };
@@ -173,11 +222,18 @@ export default function Practice() {
             </div>
           )}
 
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-end fixed bottom-5 right-5 gap-4">
+            {currentIndex > 0 && <button
+                onClick={handlePreviousQuestion}
+                // disabled={isCorrect === null}
+                className={`px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700`}
+            >
+              上一题
+            </button>}
             <button
               onClick={handleNextQuestion}
               disabled={isCorrect === null}
-              className={`px-4 py-2 rounded-lg fixed bottom-5 right-5 ${isCorrect === null
+              className={`px-4 py-2 rounded-lg  ${isCorrect === null
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'}`}
             >

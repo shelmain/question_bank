@@ -1,11 +1,10 @@
 "use client"
-import { useRouter,useParams } from 'next/navigation';
+import { useRouter,useSearchParams} from 'next/navigation';
 import Head from 'next/head';
 
-export default function Result() {
+export default function Result({params}:{params:any}) {
   const router = useRouter();
-  const params = useParams();
-  const { score, total } = params;
+  const {slug:[score,total] } = params;
 
   const numericScore = typeof score === 'string' ? parseInt(score) : 0;
   const numericTotal = typeof total === 'string' ? parseInt(total) : 1;

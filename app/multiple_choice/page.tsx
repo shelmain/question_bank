@@ -25,12 +25,15 @@ export default function Practice() {
   const [loaded, setLoaded] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-
   const currentQuestion = questions[currentIndex];
+  const [orderNumber,setOrderNumber] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
-    setCurrentIndex(localStorage.getItem("currentMultipleIndex")?JSON.parse(localStorage.getItem("currentMultipleIndex") || "") + 1:  0)
+    const orderNumber = localStorage.getItem("multipleNumber") ? JSON.parse(localStorage.getItem("multipleNumber") || ""):0;
+    setOrderNumber(orderNumber||0)
+    setCurrentIndex(localStorage.getItem("currentMultipleIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentMultipleIndex"+orderNumber) || ""):  0)
+    setScore(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
     const fetchData = async () => {
       try {
         const response = await fetch('/asset/multiple_choice_data.xlsx');
@@ -83,24 +86,50 @@ export default function Practice() {
   };
 
   const handleCheckAnswer = () => {
-    const historyAnswer = JSON.parse(localStorage.getItem("yourMultipleAnswer") || "[]");
-    localStorage.setItem("yourMultipleAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:selectedOptions.sort()}]));
-    localStorage.setItem("currentMultipleIndex", JSON.stringify(currentIndex));
-    const correctAnswers = currentQuestion.题目答案;
+   const correctAnswers = currentQuestion.题目答案;
     const userAnswers = selectedOptions.sort();
-    setIsCorrect(JSON.stringify(correctAnswers) === JSON.stringify(userAnswers));
+    const correct = JSON.stringify(correctAnswers) === JSON.stringify(userAnswers);
+    if(correct){
+      setScore(prevScore => prevScore + 1);
+    }
+    const historyAnswer = JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]");
+    localStorage.setItem("yourMultipleAnswer"+orderNumber, JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:selectedOptions.sort(),isCorrect:correct}]));
+    localStorage.setItem("currentMultipleIndex"+orderNumber, JSON.stringify(currentIndex));
+    setIsCorrect(correct);
     setShowExplanation(true);
   };
+// 上一页
+  const handlePreviousQuestion = ()=>{
+    getHistoryData(currentIndex -1)
+    setCurrentIndex((prev:number) => prev - 1);
 
-  const handleNextQuestion = () => {
+  }
+  // 获取之前做题的数据
+  const getHistoryData = (targetIndex:number)=>{
+    const index = questions[targetIndex].序号;
+    console.log("index",index)
+    const allData = JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]");
+    const item = allData?.find((i:any)=>i.序号 === index);
+    if(item){
+      setSelectedOptions(item.yourAnswer);
+      setIsCorrect(item.isCorrect);
+      setShowExplanation(item.isCorrect === null);
+      return;
+    }
     setSelectedOptions([]);
     setIsCorrect(null);
     setShowExplanation(false);
 
+  }
+  const handleNextQuestion = () => {
     if (currentIndex < questions.length - 1) {
+      getHistoryData(currentIndex+1);
       setCurrentIndex(currentIndex + 1);
     } else {
-      router.push(`/result?score=${score}&total=${questions.length}`);
+      localStorage.setItem("multipleNumber", JSON.stringify(orderNumber+1) );
+      // 下一次重制为零
+      localStorage.setItem("currentMultipleIndex"+(orderNumber+1), JSON.stringify(0));
+      router.push(`/result/${score}/${questions.length}`)
     }
   };
 
@@ -154,26 +183,38 @@ export default function Practice() {
                 showExplanation={showExplanation}
             />
 
-            {!showExplanation && (
-                <div className="mt-4">
-                  <button
-                      onClick={handleCheckAnswer}
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  >
-                    提交答案
-                  </button>
-                </div>
-            )}
-            <div className="mt-6 flex justify-end">
+
+            <div className="mt-6 flex justify-end fixed bottom-5 right-5 gap-4">
+              {currentIndex > 0 && <div className="mt-4"><button
+                  onClick={handlePreviousQuestion}
+                  // disabled={isCorrect === null}
+                  className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+              >
+                上一题
+              </button>
+              </div>
+              }
+              {!showExplanation && (
+                  <div className="mt-4">
+                    <button
+                        onClick={handleCheckAnswer}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    >
+                      提交答案
+                    </button>
+                  </div>
+              )}
+              <div className="mt-4">
               <button
                   onClick={handleNextQuestion}
                   disabled={isCorrect === null}
-                  className={`px-4 py-2 rounded-lg fixed bottom-5 right-5 ${isCorrect === null
+                  className={` font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isCorrect === null
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700'}`}
               >
                 {currentIndex < questions.length - 1 ? '下一题' : '查看结果'}
               </button>
+              </div>
             </div>
           </div>
         </div>
