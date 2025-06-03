@@ -35,15 +35,15 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     getHistoryData(currentIndex);
   }, [currentIndex]);
   useEffect(() => {
-    if(page != -1){
-      setOrderNumber(page);
+    if(page != "-1"){
+      setOrderNumber(+page);
     }else{
       const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
-      setOrderNumber(orderNumber||0)
+      setOrderNumber(+orderNumber||0)
     }
-    if(index != -1){
-      setCurrentIndex(index-1);
-      const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find(i=>i.序号 == index);
+    if(index != "-1"){
+      setCurrentIndex(+index-1);
+      const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find((i:any)=>i.序号 == index);
       console.log(historyAnswer)
       setIsCorrect(historyAnswer.isCorrect);
       setSelectedOption(historyAnswer.yourAnswer)

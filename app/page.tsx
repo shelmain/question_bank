@@ -44,7 +44,7 @@ export default function Home() {
                         欢迎来到招标代理从业人员培训题库！这里提供了丰富的单选题和多选题，帮助你提升专业知识和技能。祝你学习愉快！
                     </p>
                     <div className="flex justify-center space-x-4 gap-2 flex-row flex-wrap">
-                        <Link href="/single_choice" passHref>
+                        <Link href="/single_choice/-1/-1" passHref>
                             <Button type="primary" size="large" className="bg-blue-500 hover:bg-blue-700 text-white">
                                 单选题
                             </Button>
