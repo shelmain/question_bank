@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import Head from "next/head";
 import ProgressBar from "../components/ProgressBar";
 import MultipleQuestionCard from "../components/MultipleQuestionCard";
+import {fetchMultipleData} from "@/utils/common";
 
 interface Question {
   序号: string;
@@ -34,46 +35,14 @@ export default function Practice() {
     setOrderNumber(orderNumber||0)
     setCurrentIndex(localStorage.getItem("currentMultipleIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentMultipleIndex"+orderNumber) || ""):  0)
     setScore(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/asset/multiple_choice_data.xlsx');
-        const arrayBuffer = await response.arrayBuffer();
-        const data = new Uint8Array(arrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
 
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        const formattedQuestions = jsonData.map((item: any) => {
-          const options = [];
-          for (let i = 4; i <= 7; i++) {
-            const optionKey = `__EMPTY_${i}`;
-            if (item[optionKey]) {
-              options.push(item[optionKey]);
-            }
-          }
-
-          return {
-            序号: item["招标代理从业人员培训题库"]?.toString() || '',
-            题目板块: item["__EMPTY"]?.toString() || '',
-            难度系数: item["__EMPTY_1"]?.toString() || '',
-            题目内容: item["__EMPTY_2"]?.toString() || '',
-            题目答案: item["__EMPTY_3"]?.toString().split('') || '',
-            选项: options,
-            题目解析: item["__EMPTY_12"]?.toString() || '',
-            文件根据: item["__EMPTY_13"]?.toString() || ''
-          };
-        }).filter((q: any) => q !== null);
-
-        setQuestions(formattedQuestions.slice(2, formattedQuestions.length));
-        setLoaded(true);
-      } catch (error) {
-        console.error('Error loading Excel file:', error);
-      }
-    };
-
-    fetchData();
+    fetchMultipleData().then(res=>{
+      setQuestions(res)
+      setLoaded(true)
+    }).catch(()=>{
+      setQuestions([])
+      setLoaded(true)
+    });
   }, []);
 
   const handleOptionSelect = (option: string) => {
