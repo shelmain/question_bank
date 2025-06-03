@@ -54,11 +54,11 @@ export default function Home() {
                                 多选题
                             </Button>
                         </Link>
-                        <Link href="/orderList/multiple" passHref>
-                            <Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">
-                                多选题刷题记录
-                            </Button>
-                        </Link>
+                        {/*<Link href="/orderList/multiple" passHref>*/}
+                        {/*    <Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">*/}
+                        {/*        多选题刷题记录*/}
+                        {/*    </Button>*/}
+                        {/*</Link>*/}
                         <Link href="/orderList/single" passHref>
                             <Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">
                                 单选题刷题记录

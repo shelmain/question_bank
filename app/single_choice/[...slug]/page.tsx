@@ -1,10 +1,10 @@
 "use client"
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import Head from 'next/head';
-import QuestionCard from '../components/QuestionCard';
-import ProgressBar from '../components/ProgressBar';
+import QuestionCard from '../../components/QuestionCard';
+import ProgressBar from '../../components/ProgressBar';
 import {fetchSingleData} from "@/utils/common";
 
 interface Question {
@@ -18,7 +18,9 @@ interface Question {
   文件根据: string;
 }
 
-export default function Practice() {
+export default function Practice(props:{params:Promise<{slug:string[]}>}) {
+  const [page=0,index=0] = React.use(props?.params)?.slug;
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -33,9 +35,26 @@ export default function Practice() {
     getHistoryData(currentIndex);
   }, [currentIndex]);
   useEffect(() => {
-    const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
-    setOrderNumber(orderNumber||0)
-    setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
+    if(page != -1){
+      setOrderNumber(page);
+    }else{
+      const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
+      setOrderNumber(orderNumber||0)
+    }
+    if(index != -1){
+      setCurrentIndex(index-1);
+      const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find(i=>i.序号 == index);
+      console.log(historyAnswer)
+      setIsCorrect(historyAnswer.isCorrect);
+      setSelectedOption(historyAnswer.yourAnswer)
+      if(historyAnswer.isCorrect !==null){
+        setShowExplanation(true);
+      }
+      // handleOptionSelect(historyAnswer.yourAnswer)
+    }else{
+      setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
+    }
+    // 所有对的数量
     setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
       fetchSingleData().then(res=>{
         setQuestions(res)

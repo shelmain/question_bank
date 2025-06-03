@@ -1,6 +1,7 @@
 "use client"
 import React, {useEffect, useState} from 'react';
 import { Tag } from 'antd';
+import Link from "next/link";
 
 interface QuestionItem {
   序号: string;
@@ -47,9 +48,9 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
       <h1 className="text-xl font-bold mb-6 ">题目列表</h1>
       <div className="space-y-4 text-[#000]">
         {data.map((item:any) => (
-          <div
+          <Link href={`/${type === "multiple" ? 'multiple_choice' :"single_choice"}/${page}/${item.序号}`}
             key={item.序号}
-            className={`p-4 rounded-lg border-l-4 text-block ${getBackgroundColor(item.isCorrect)}`}
+            className={`p-4 rounded-lg border-l-4 flex flex-col text-block ${getBackgroundColor(item.isCorrect)}`}
           >
             <div className="flex text-block justify-between items-start mb-2">
               <div className="mb-2">
@@ -67,7 +68,7 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
             <div className="text-sm text-gray-500">
               你的答案: {Array.isArray(item.yourAnswer) ? item.yourAnswer.join(', '): item.yourAnswer || '未回答'}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
