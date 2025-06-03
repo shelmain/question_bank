@@ -1,10 +1,10 @@
-"use client"
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import * as XLSX from 'xlsx';
-import Head from 'next/head';
-import ProgressBar from '../components/ProgressBar';
-import MultipleQuestionCard from "@/app/components/MultipleQuestionCard";
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";
+import Head from "next/head";
+import ProgressBar from "../components/ProgressBar";
+import MultipleQuestionCard from "../components/MultipleQuestionCard";
 
 interface Question {
   序号: string;
@@ -19,15 +19,14 @@ interface Question {
 
 export default function Practice() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number >(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions[currentIndex];
   const router = useRouter();
 
   useEffect(() => {
@@ -42,21 +41,16 @@ export default function Practice() {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        console.log(jsonData)
-        // 处理数据格式
-        const formattedQuestions:any[] = jsonData.map((item: any) => {
-          // 提取选项 - 从__EMPTY_5到__EMPTY_12对应A-H选项
+
+        const formattedQuestions = jsonData.map((item: any) => {
           const options = [];
           for (let i = 4; i <= 7; i++) {
             const optionKey = `__EMPTY_${i}`;
-            if (item[optionKey] && item[optionKey]) {
+            if (item[optionKey]) {
               options.push(item[optionKey]);
             }
           }
 
-          // 确保题目内容存在且不是空字符串
-          const questionContent = item["__EMPTY_3"];
-          if (!questionContent) return null;
           return {
             序号: item["招标代理从业人员培训题库"]?.toString() || '',
             题目板块: item["__EMPTY"]?.toString() || '',
@@ -67,10 +61,9 @@ export default function Practice() {
             题目解析: item["__EMPTY_12"]?.toString() || '',
             文件根据: item["__EMPTY_13"]?.toString() || ''
           };
-        }).filter((q: any) => q !== null); // 过滤掉无效数据
-        console.log(formattedQuestions)
+        }).filter((q: any) => q !== null);
 
-        setQuestions(formattedQuestions.slice(1,formattedQuestions.length) || []);
+        setQuestions(formattedQuestions.slice(2, formattedQuestions.length));
         setLoaded(true);
       } catch (error) {
         console.error('Error loading Excel file:', error);
@@ -81,38 +74,33 @@ export default function Practice() {
   }, []);
 
   const handleOptionSelect = (option: string) => {
-    if (selectedOptions?.includes(option)) {
+    if (isCorrect !== null) return; // 如果已经提交答案，不允许再选择
+    if (selectedOptions.includes(option)) {
       setSelectedOptions(selectedOptions.filter(o => o !== option));
     } else {
       setSelectedOptions([...selectedOptions, option]);
     }
-    const historyAnswer = JSON.parse(localStorage.getItem("yourMultipleAnswer") || "[]");
-    console.log(historyAnswer);
-    localStorage.setItem("yourMultipleAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option}]));
-    localStorage.setItem("currentMultipleIndex", JSON.stringify(currentIndex));
   };
 
   const handleCheckAnswer = () => {
-    setShowExplanation(true);
-    const correctAnswers = questions[currentQuestionIndex].题目答案;
+    const historyAnswer = JSON.parse(localStorage.getItem("yourMultipleAnswer") || "[]");
+    localStorage.setItem("yourMultipleAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:selectedOptions.sort()}]));
+    localStorage.setItem("currentMultipleIndex", JSON.stringify(currentIndex));
+    const correctAnswers = currentQuestion.题目答案;
     const userAnswers = selectedOptions.sort();
     setIsCorrect(JSON.stringify(correctAnswers) === JSON.stringify(userAnswers));
+    setShowExplanation(true);
   };
 
-
-
   const handleNextQuestion = () => {
-    if (isCorrect === null) return;
     setSelectedOptions([]);
     setIsCorrect(null);
     setShowExplanation(false);
 
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex((prev:number) => prev + 1);
+      setCurrentIndex(currentIndex + 1);
     } else {
-      // 所有题目完成，跳转到结果页
-      router.push(`/result?score=${score}&total=${questions.length}`,
-      );
+      router.push(`/result?score=${score}&total=${questions.length}`);
     }
   };
 
@@ -133,7 +121,6 @@ export default function Practice() {
   }
 
   const progress = ((currentIndex + 1) / questions.length) * 100;
-
 
   return (
       <div className="min-h-screen bg-gray-100 p-4">
@@ -163,20 +150,20 @@ export default function Practice() {
                 question={currentQuestion}
                 selectedOptions={selectedOptions}
                 isCorrect={isCorrect}
-                showExplanation={showExplanation}
                 onSelect={handleOptionSelect}
+                showExplanation={showExplanation}
             />
 
-            {
-                !showExplanation && <div className="mt-4">
-              <button
-                  onClick={handleCheckAnswer}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                提交答案
-              </button>
-            </div>
-            }
+            {!showExplanation && (
+                <div className="mt-4">
+                  <button
+                      onClick={handleCheckAnswer}
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    提交答案
+                  </button>
+                </div>
+            )}
             <div className="mt-6 flex justify-end">
               <button
                   onClick={handleNextQuestion}

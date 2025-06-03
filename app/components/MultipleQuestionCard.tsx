@@ -1,4 +1,3 @@
-// QuestionCard.tsx
 import { useState } from 'react';
 
 export interface Question {
@@ -20,13 +19,9 @@ interface QuestionCardProps {
     showExplanation: boolean;
 }
 
-export default function MultipleQuestionCard({ question, selectedOptions, isCorrect, onSelect,showExplanation }: QuestionCardProps) {
+export default function MultipleQuestionCard({ question, selectedOptions, isCorrect, onSelect, showExplanation }: QuestionCardProps) {
     const handleOptionSelect = (option: string) => {
-        if (selectedOptions.includes(option)) {
-            onSelect(option); // 如果已经选中，取消选择
-        } else {
-            onSelect(option); // 如果未选中，添加选择
-        }
+        onSelect(option);
     };
 
     return (
@@ -36,13 +31,21 @@ export default function MultipleQuestionCard({ question, selectedOptions, isCorr
             <div className="space-y-3 text-[#000]">
                 {question.选项.map((option, index) => {
                     const optionLetter = String.fromCharCode(65 + index);
-                    const isSelected = selectedOptions?.includes(optionLetter);
-                    let optionClass = "p-3 border rounded-lg cursor-pointer hover:bg-blue-50 hover:text-blue";
-
-                    if (isSelected) {
-                        optionClass += isCorrect
-                            ? " bg-green-100 border-green-500"
-                            : " bg-red-100 border-red-500";
+                    const isSelected = selectedOptions.includes(optionLetter);//当前是否被选中,isCorrect全部答案是否正确
+                    let optionClass = "p-3 border rounded-lg cursor-pointer";
+                    console.log(option, isSelected,isCorrect);
+                    if (isCorrect !== null) {// 已经点击了提交
+                        if (isSelected) {// 被选中
+                            optionClass += question.题目答案.includes(optionLetter)? " bg-green-100 border-green-500": " bg-red-100 border-red-500";
+                        } else if (question.题目答案.includes(optionLetter)) {
+                            optionClass += " bg-red-100 border-red-500";
+                        }
+                    }
+                    else if (isSelected) {
+                        optionClass += " bg-orange-100 border-orange-500";
+                    }
+                    else {
+                        optionClass += " hover:bg-blue-50 hover:text-blue";
                     }
 
                     return (
@@ -65,10 +68,13 @@ export default function MultipleQuestionCard({ question, selectedOptions, isCorr
                     {isCorrect ? (
                         <span className="text-green-600">✓ 回答正确</span>
                     ) : (
-                        <span className="text-red-600">✗ 回答错误，正确答案是 {question.题目答案.join(', ')}</span>
+                        <span className="text-red-600">✗ 回答错误，你的答案{selectedOptions.join(",")},正确答案是
+                            <span className="text-green-600"> {question.题目答案.join(', ')}
+                            </span></span>
                     )}
                 </div>
             )}
+
             {showExplanation && (
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <h3 className="font-bold text-gray-700 mb-2">解析：</h3>
