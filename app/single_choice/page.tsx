@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import Head from 'next/head';
 import QuestionCard from '../components/QuestionCard';
 import ProgressBar from '../components/ProgressBar';
+import {fetchSingleData} from "@/utils/common";
 
 interface Question {
   序号: string;
@@ -36,51 +37,14 @@ export default function Practice() {
     setOrderNumber(orderNumber||0)
     setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
     setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/asset/single_choice_data.xlsx');
-        const arrayBuffer = await response.arrayBuffer();
-        const data = new Uint8Array(arrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+      fetchSingleData().then(res=>{
+        setQuestions(res)
+        setLoaded(true)
+      }).catch(()=>{
+        setQuestions([])
+        setLoaded(true)
+      });
 
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        console.log(jsonData)
-        // 处理数据格式
-        const formattedQuestions:any[] = jsonData.map((item: any) => {
-          // 提取选项 - 从__EMPTY_5到__EMPTY_12对应A-H选项
-          const options = [];
-          for (let i = 5; i <= 8; i++) {
-            const optionKey = `__EMPTY_${i}`;
-            if (item[optionKey] && item[optionKey]) {
-              options.push(item[optionKey]);
-            }
-          }
-
-          // 确保题目内容存在且不是空字符串
-          const questionContent = item["__EMPTY_3"];
-          if (!questionContent) return null;
-          return {
-            序号: item["__EMPTY"]?.toString() || '',
-            题目板块: item["__EMPTY_1"]?.toString() || '',
-            难度系数: item["__EMPTY_2"]?.toString() || '',
-            题目内容: item["__EMPTY_3"]?.toString() || '',
-            题目答案: item["__EMPTY_4"]?.toString() || '',
-            选项: options,
-            题目解析: item["__EMPTY_13"]?.toString() || '',
-            文件根据: item["__EMPTY_14"]?.toString() || ''
-          };
-        }).filter((q: any) => q !== null); // 过滤掉无效数据
-
-        setQuestions(formattedQuestions.slice(1,formattedQuestions.length) || []);
-        setLoaded(true);
-      } catch (error) {
-        console.error('Error loading Excel file:', error);
-      }
-    };
-
-    fetchData();
   }, []);
 
   const handleOptionSelect = (option: string) => {
