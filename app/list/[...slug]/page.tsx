@@ -28,6 +28,7 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
     }
     // const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
     const historyAnswer = JSON.parse(localStorage.getItem(typekeys+page) || "[]");
+    console.log(historyAnswer)
     setData(historyAnswer);
 
   }, []);
@@ -38,9 +39,9 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
     if (isCorrect === false) return 'bg-red-100 border-red-500';
     return 'bg-gray-100 border-gray-500';
   };
-  if(data.length){
-    return <div className="flex items-center">暂无内容。。。</div>
-  }
+  // if(data.length){
+  //   return <div className="flex items-center">暂无内容。。。</div>
+  // }
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-xl font-bold mb-6 ">题目列表</h1>
