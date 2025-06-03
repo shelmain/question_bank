@@ -19,7 +19,7 @@ interface Question {
 
 export default function Practice() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(localStorage.getItem("currentIndex")?JSON.parse(localStorage.getItem("currentIndex") || "") + 1:  0 );
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -78,12 +78,19 @@ export default function Practice() {
   }, []);
 
   const handleOptionSelect = (option: string) => {
+    //存答案
+    const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer") || "[]");
+    console.log(historyAnswer);
+    localStorage.setItem("yourAnswer", JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option}]));
+    localStorage.setItem("currentIndex", JSON.stringify(currentIndex));
     if (isCorrect !== null) return; // 已经回答过的不再处理
+    console.log(currentIndex);
 
     setSelectedOption(option);
     const correct = option === questions[currentIndex].题目答案;
     setIsCorrect(correct);
     setShowExplanation(true);
+    console.log(correct)
 
     if (correct) {
       setScore(prev => prev + 1);
@@ -170,7 +177,7 @@ export default function Practice() {
             <button
               onClick={handleNextQuestion}
               disabled={isCorrect === null}
-              className={`px-4 py-2 rounded-lg ${isCorrect === null
+              className={`px-4 py-2 rounded-lg fixed bottom-5 right-5 ${isCorrect === null
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'}`}
             >
