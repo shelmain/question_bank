@@ -93,7 +93,7 @@ export default function Practice() {
     setShowExplanation(false);
 
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev:number) => prev + 1);
     } else {
       // 所有题目完成，跳转到结果页
       router.push(`/result?score=${score}&total=${questions.length}`)

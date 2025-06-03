@@ -19,7 +19,7 @@ interface Question {
 
 export default function Practice() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number >(localStorage.getItem("currentMultipleIndex")?JSON.parse(localStorage.getItem("currentMultipleIndex") || "") + 1:  0 );
+  const [currentIndex, setCurrentIndex] = useState<number >(0);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -31,6 +31,7 @@ export default function Practice() {
   const router = useRouter();
 
   useEffect(() => {
+    setCurrentIndex(localStorage.getItem("currentMultipleIndex")?JSON.parse(localStorage.getItem("currentMultipleIndex") || "") + 1:  0)
     const fetchData = async () => {
       try {
         const response = await fetch('/asset/multiple_choice_data.xlsx');
@@ -107,7 +108,7 @@ export default function Practice() {
     setShowExplanation(false);
 
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentIndex((prev:number) => prev + 1);
     } else {
       // 所有题目完成，跳转到结果页
       router.push(`/result?score=${score}&total=${questions.length}`,
