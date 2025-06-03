@@ -4,7 +4,7 @@ import { Tag } from 'antd';
 import Link from "next/link";
 
 
-const QuestionListPage: React.FC = (props:{params:{type:string}}) => {
+const QuestionListPage= (props:{params:Promise<{type:string}>}) => {
   const type = React.use(props?.params)?.type;
   const [data,setData] = useState(0);
   // const [typeKeys,setTypeKeys] = useState([]);

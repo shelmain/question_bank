@@ -15,7 +15,7 @@ interface QuestionItem {
   isCorrect: boolean | null;
 }
 
-const QuestionListPage: React.FC = (props:{params:{slug:string[]}}) => {
+const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
   const [type,page=0] = React.use(props?.params)?.slug;
   const [data,setData] = useState([]);
   // const [typeKeys,setTypeKeys] = useState([]);
@@ -45,7 +45,7 @@ const QuestionListPage: React.FC = (props:{params:{slug:string[]}}) => {
     <div className="container mx-auto p-4">
       <h1 className="text-xl font-bold mb-6 ">题目列表</h1>
       <div className="space-y-4 text-[#000]">
-        {data.map((item) => (
+        {data.map((item:any) => (
           <div
             key={item.序号}
             className={`p-4 rounded-lg border-l-4 text-block ${getBackgroundColor(item.isCorrect)}`}
