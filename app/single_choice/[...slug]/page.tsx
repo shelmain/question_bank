@@ -75,7 +75,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     // 所有对的数量
     setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
     setError(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect === false ? 1+current : current,0):  0)
-    fetchSingleData().then(res=>{
+    fetchSingleData().then((res:any)=>{
         setQuestions(res)
         setLoaded(true)
       }).catch(()=>{

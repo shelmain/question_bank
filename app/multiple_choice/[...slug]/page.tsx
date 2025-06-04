@@ -80,7 +80,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     setScore(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
     setError(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect === false ? 1+current : current,0):  0)
 
-    fetchMultipleData().then(res=>{
+    fetchMultipleData().then((res:any)=>{
       setQuestions(res)
       setLoaded(true)
     }).catch(()=>{
