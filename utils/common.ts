@@ -2,10 +2,10 @@ import * as XLSX from "xlsx";
 
 export const fetchSingleData = async () => {
   try {
-    const data = JSON.parse(localStorage.getItem("singleData") || "[]");
-    if( data.length){
-      return data;
-    }else {
+    // const data = JSON.parse(localStorage.getItem("singleData") || "[]");
+    // if( data.length){
+    //   return data;
+    // }else {
 
       const response = await fetch('/asset/single_choice_data.xlsx');
       const arrayBuffer = await response.arrayBuffer();
@@ -45,17 +45,17 @@ export const fetchSingleData = async () => {
       return formattedQuestions.slice(1, formattedQuestions.length) || []
       // setQuestions();
       // setLoaded(true);
-    }
+    // }
   } catch (error) {
     console.error('Error loading Excel file:', error);
   }
 };
 export const fetchMultipleData = async () => {
   try {
-    const data = JSON.parse(localStorage.getItem("multipleData") || "[]");
-    if( data.length){
-      return data;
-    }else {
+    // const data = JSON.parse(localStorage.getItem("multipleData") || "[]");
+    // if( data.length){
+    //   return data;
+    // }else {
     const response = await fetch('/asset/multiple_choice_data.xlsx');
     const arrayBuffer = await response.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
@@ -88,7 +88,8 @@ export const fetchMultipleData = async () => {
     const multData = formattedQuestions.slice(2, formattedQuestions.length)
     localStorage.setItem("multipleData", JSON.stringify(multData))
 
-   return multData}
+   return multData
+  // }
   } catch (error) {
     console.error('Error loading Excel file:', error);
   }

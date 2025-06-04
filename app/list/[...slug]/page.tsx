@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import { Tag } from 'antd';
 import Link from "next/link";
+import {fetchMultipleData, fetchSingleData} from "@/utils/common";
 
 interface QuestionItem {
   序号: string;
@@ -12,25 +13,51 @@ interface QuestionItem {
   选项: string[];
   题目解析: string;
   文件根据: string;
-  yourAnswer: string[];
-  isCorrect: boolean | null;
+  yourAnswer?: string[];
+  isCorrect?: boolean | null;
 }
 
 const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
   const [type,page=0] = React.use(props?.params)?.slug;
-  const [data,setData] = useState([]);
+  const [data,setData] = useState<QuestionItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
   // const [typeKeys,setTypeKeys] = useState([]);
   useEffect(() => {
-    let typekeys =""
-    if(type === "multiple"){
-      typekeys = "yourMultipleAnswer"
+    let typekeys =[]
+    let historyAnswer = [];
+    //
+    if(page == "-1"){
+      if(type === "multiple") {
+        fetchMultipleData().then(res=>{
+          setData(res || [])
+          setLoaded(true)
+        }).catch(()=>{
+          setData([])
+          setLoaded(true)
+        });
+      }else{
+        fetchSingleData().then(res=>{
+          setData(res || [])
+          setLoaded(true)
+        }).catch(()=>{
+          setData([])
+          setLoaded(true)
+        });
+      }
+
     }else{
-      typekeys = "yourAnswer"
+      if(type === "multiple") {
+        typekeys = ["yourMultipleAnswer", "multipleData", "multipleNumber"];
+      }else{
+        typekeys = ["yourAnswer","singleData",'singleNumber'];
+      }
+      historyAnswer = JSON.parse(localStorage.getItem(typekeys[0]+page) || "[]")
+      console.log(historyAnswer)
+      setData(historyAnswer);
+      setLoaded(true)
     }
     // const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
-    const historyAnswer = JSON.parse(localStorage.getItem(typekeys+page) || "[]");
-    console.log(historyAnswer)
-    setData(historyAnswer);
+
 
   }, []);
   // const data: QuestionItem[] = JSON.parse(localStorage.getItem("singleData")|| '[]')
@@ -40,13 +67,20 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
     if (isCorrect === false) return 'bg-red-100 border-red-500';
     return 'bg-gray-100 border-gray-500';
   };
-  // if(data.length){
-  //   return <div className="flex items-center">暂无内容。。。</div>
-  // }
+  if (!loaded) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl">加载题目中...</div>
+        </div>
+    );
+  }
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-xl font-bold mb-6 ">题目列表</h1>
-      <div className="space-y-4 text-[#000]">
+      {
+        !data.length ? <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl">暂无内容...</div>
+        </div>:<div className="space-y-4 text-[#000]">
         {data.map((item:any) => (
           <Link href={`/${type === "multiple" ? 'multiple_choice' :"single_choice"}/${page}/${item.序号}`}
             key={item.序号}
@@ -65,12 +99,15 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
               {/*</div>*/}
             </div>
 
-            <div className="text-sm text-gray-500">
+            {
+              page !='-1' && <div className="text-sm text-gray-500">
               你的答案: {Array.isArray(item.yourAnswer) ? item.yourAnswer.join(', '): item.yourAnswer || '未回答'}
             </div>
+            }
           </Link>
         ))}
       </div>
+      }
     </div>
   );
 };

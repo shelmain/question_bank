@@ -49,7 +49,7 @@ export default function Home() {
                                 单选题
                             </Button>
                         </Link>
-                        <Link href="/multiple_choice" passHref>
+                        <Link href="/multiple_choice/-1/-1" passHref>
                             <Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">
                                 多选题
                             </Button>
@@ -59,11 +59,7 @@ export default function Home() {
                         {/*        多选题刷题记录*/}
                         {/*    </Button>*/}
                         {/*</Link>*/}
-                        <Link href="/orderList/single" passHref>
-                            <Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">
-                                单选题刷题记录
-                            </Button>
-                        </Link>
+
                     </div>
                 </div>
             </div>

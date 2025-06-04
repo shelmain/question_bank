@@ -6,6 +6,8 @@ import Head from 'next/head';
 import QuestionCard from '../../components/QuestionCard';
 import ProgressBar from '../../components/ProgressBar';
 import {fetchSingleData} from "@/utils/common";
+import {Button} from "antd";
+import Link from "next/link";
 
 interface Question {
   序号: string;
@@ -26,6 +28,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [errorNumber, setError] = useState(0);
   const [score, setScore] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [orderNumber,setOrderNumber] = useState(0);
@@ -36,27 +39,43 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
   }, [currentIndex]);
   useEffect(() => {
     if(page != "-1"){
+      // 第几次历史记录
       setOrderNumber(+page);
-    }else{
-      const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
-      setOrderNumber(+orderNumber||0)
-    }
-    if(index != "-1"){
-      setCurrentIndex(+index-1);
-      const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find((i:any)=>i.序号 == index);
-      console.log(historyAnswer)
-      setIsCorrect(historyAnswer.isCorrect);
-      setSelectedOption(historyAnswer.yourAnswer)
-      if(historyAnswer.isCorrect !==null){
-        setShowExplanation(true);
+
+      if(index != "-1"){
+        console.log("序号",index);
+        setCurrentIndex(+index-1);
+        const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find((i:any)=>i.序号 == index);
+        console.log("historyAnswer",historyAnswer?.isCorrect,historyAnswer)
+        setIsCorrect(historyAnswer?.isCorrect);
+        setSelectedOption(historyAnswer?.yourAnswer || [])
+        if(historyAnswer?.isCorrect !== null){
+          console.log(historyAnswer?.isCorrect, typeof historyAnswer.isCorrect,"sldjflks");
+          setShowExplanation(true);
+        }
+        // handleOptionSelect(historyAnswer.yourAnswer)
+      //   暂时没有这个可能会是这样
+      }else{
+        // setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
       }
-      // handleOptionSelect(historyAnswer.yourAnswer)
     }else{
-      setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
+      const orderNumber = JSON.parse(localStorage.getItem("singleNumber") || "0");
+      setCurrentIndex(JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || "0"))
+      setOrderNumber(+orderNumber||0)
+      // 列表模式过来的,不用设置数据源
+      if(index != "-1"){
+        setCurrentIndex(+index-1);
+        setOrderNumber(orderNumber +1)
+      }else{
+        localStorage.setItem("currentIndex"+(+orderNumber+1), JSON.stringify(currentIndex));
+
+      }
     }
+
     // 所有对的数量
     setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
-      fetchSingleData().then(res=>{
+    setError(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect === false ? 1+current : current,0):  0)
+    fetchSingleData().then(res=>{
         setQuestions(res)
         setLoaded(true)
       }).catch(()=>{
@@ -74,6 +93,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     setSelectedOption(option);
     const correct = option === questions[currentIndex].题目答案;
     setIsCorrect(correct);
+    console.log("handleOptionSelect",correct);
     setShowExplanation(true);
 //存答案
     const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]");
@@ -85,6 +105,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
       setTimeout(() => {
         setSelectedOption(null);
         setIsCorrect(null);
+        console.log("setTimeout",null);
         setShowExplanation(false);
 
         if (currentIndex < questions.length - 1) {
@@ -100,8 +121,19 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
         }
       },500)
 
+    } else{
+      setError(prevScore => prevScore + 1);
     }
   };
+  // 列表模式
+  const toListPage = () => {
+    router.replace(`/list/single/-1`)
+  }
+  // 练习记录
+  const toHistory = ()=>{
+    router.replace(`/orderList/single`)
+
+  }
   // 上一页
   const handlePreviousQuestion = ()=>{
     // getHistoryData(currentIndex -1)
@@ -125,6 +157,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     }
     setSelectedOption(null);
     setIsCorrect(null);
+    console.log("答案正确时",null);
     setShowExplanation(false);
 
   }
@@ -141,10 +174,9 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
       // 下一次重制为零
       localStorage.setItem("currentIndex"+(orderNumber+1), JSON.stringify(0));
       // 所有题目完成，跳转到结果页
-      router.push(`/result/${score}/${questions.length}`,
+      router.replace(`/result/${score}/${questions.length}/${errorNumber}`,
       );
-    }
-  };
+    }  };
 
   if (!loaded) {
     return (
@@ -165,6 +197,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
+  console.log("isCorrect",isCorrect);
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <Head>
@@ -172,6 +205,17 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
       </Head>
 
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <span onClick={toListPage}  className="text-blue-500 text-sm hover:bg-green-700 ">
+            {/*<Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">*/}
+            列表模式
+            {/*</Button>*/}
+          </span>
+          <span onClick={toHistory}  className="text-blue-500 text-sm hover:bg-green-700 ">
+            {/*<Button type="primary" size="large" className="bg-green-500 hover:bg-green-700 text-white">*/}
+            练习记录
+            {/*</Button>*/}
+          </span></div>
         <ProgressBar progress={progress} />
 
         <div className="mb-6">

@@ -4,7 +4,7 @@ import Head from 'next/head';
 
 export default function Result({params}:{params:any}) {
   const router = useRouter();
-  const {slug:[score,total] } = params;
+  const {slug:[score,total,errorNumber] } = params;
 
   const numericScore = typeof score === 'string' ? parseInt(score) : 0;
   const numericTotal = typeof total === 'string' ? parseInt(total) : 1;
@@ -57,7 +57,10 @@ export default function Result({params}:{params:any}) {
               正确: <span className="font-bold text-green-600">{numericScore}</span> 题
             </p>
             <p className="text-lg">
-              错误: <span className="font-bold text-red-600">{numericTotal - numericScore}</span> 题
+              错误: <span className="font-bold text-red-600">{errorNumber}</span> 题
+            </p>
+            <p className="text-lg">
+              共: <span className="font-bold text-red-600">{ total}</span> 题
             </p>
           </div>
         </div>
