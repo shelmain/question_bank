@@ -13,8 +13,10 @@ const QuestionListPage= (props:{params:Promise<{type:string}>}) => {
     let typekeys =""
     if(type === "multiple"){
       typekeys = "multipleNumber"
-    }else{
+    }else if(type === "single"){
       typekeys = "singleNumber"
+    }else{
+      typekeys = "judge"
     }
     // const orderNumber = localStorage.getItem("singleNumber") ? JSON.parse(localStorage.getItem("singleNumber") || ""):0;
     const historyAnswer = JSON.parse(localStorage.getItem(typekeys) || "0");

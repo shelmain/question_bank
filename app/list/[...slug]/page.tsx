@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import { Tag } from 'antd';
 import Link from "next/link";
-import {fetchMultipleData, fetchSingleData} from "@/utils/common";
+import {fetchJudgeData, fetchMultipleData, fetchSingleData} from "@/utils/common";
 
 interface QuestionItem {
   序号: string;
@@ -35,8 +35,16 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
           setData([])
           setLoaded(true)
         });
-      }else{
+      }else if(type === "single"){
         fetchSingleData().then(res=>{
+          setData(res || [])
+          setLoaded(true)
+        }).catch(()=>{
+          setData([])
+          setLoaded(true)
+        });
+      }else{
+        fetchJudgeData().then(res=>{
           setData(res || [])
           setLoaded(true)
         }).catch(()=>{
@@ -48,8 +56,11 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
     }else{
       if(type === "multiple") {
         typekeys = ["yourMultipleAnswer", "multipleData", "multipleNumber"];
-      }else{
+      }else if(type === "single"){
         typekeys = ["yourAnswer","singleData",'singleNumber'];
+      }else{
+        typekeys = ["yourJudgeAnswer","judgeData",'judgeNumber'];
+
       }
       historyAnswer = JSON.parse(localStorage.getItem(typekeys[0]+page) || "[]")
       console.log(historyAnswer)
@@ -82,7 +93,7 @@ const QuestionListPage = (props:{params:Promise<{slug:string[]}>}) => {
           <div className="text-xl">暂无内容...</div>
         </div>:<div className="space-y-4 text-[#000]">
         {data.map((item:any) => (
-          <Link href={`/${type === "multiple" ? 'multiple_choice' :"single_choice"}/${page}/${item.序号}`}
+          <Link href={`/${type === "multiple" ? 'multiple_choice' : "single_choice"}/${page}/${item.序号}/${type}`}
             key={item.序号}
             className={`p-4 rounded-lg border-l-4 flex flex-col text-block ${getBackgroundColor(item.isCorrect)}`}
           >
