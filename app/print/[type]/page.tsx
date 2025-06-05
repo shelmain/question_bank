@@ -150,7 +150,13 @@ const QuestionListPage = (props:{params:Promise<{type:string}>}) => {
                   <div className="flex ">
                     <span className="font-bold mr-2">{index + 1}.</span>
                     <div>
-                      <p className="font-medium">{q.题目内容}</p>
+                      <p className="font-medium">{q.题目内容}
+                        {showAnswers && (
+                            <span className="text-green-600">
+                              答案：{Array.isArray(q.题目答案) ? q.题目答案.join('、') : q.题目答案}
+                            </span>
+                        )}
+                      </p>
                       <div className="mt-2 ml-4 space-y-2 flex gap-4  flex-row flex-wrap">
                         {q.选项.map((opt, i) => {
                           console.log(opt,q.题目答案,showAnswers && (Array.isArray(q.题目答案) ? q.题目答案.includes(opt) : q.题目答案 == opt))
