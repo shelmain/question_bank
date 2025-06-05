@@ -6,8 +6,7 @@ import { Button } from "antd";
 import qrcode from '../public/asset/imgs/qrcode.jpg'
 
 export default function Home() {
-        return
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-500 to-emerald-500 text-white">
+    return (<div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-500 to-emerald-500 text-white">
                 <div className="bg-opacity-80  p-8 rounded-lg shadow-lg max-w-md w-full">
                     <h1 className="text-4xl font-bold text-center mb-6">招标代理从业人员培训题库</h1>
                     <p className="text-lg text-center mb-8">
@@ -32,7 +31,7 @@ export default function Home() {
 
                     </div>
                 </div>
-            </div>
+            </div>)
 
 
 
