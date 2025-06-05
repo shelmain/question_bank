@@ -98,13 +98,18 @@ export default function Home() {
                                      backgroundImage: `url('https://wx2.sinaimg.cn/mw690/007lc0bkgy1hvys8gz6ihj30u01syqc1.jpg')`
                                  }}
                                     />
-                            {/*<div className="md:w-1/3 h-48 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJsZWFmIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0xMCAxMCBsMTAgMTAgbC0xMCAxMCBsMTAgMTAgbC0xMCAxMCIgc3Ryb2tlPSIjZmJhYzgyIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjbGVhZikiIG9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')]">*/}
-                            {/*    <div className="h-full flex items-center justify-center">*/}
-                            {/*        <svg className="w-16 h-16 text-amber-400 opacity-30" viewBox="0 0 24 24" fill="none" stroke="currentColor">*/}
-                            {/*            <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>*/}
-                            {/*        </svg>*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
+                            <svg className="w-16 h-16   text-amber-400 opacity-30 absolute top-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>
+                            </svg>
+                            <svg className="w-16 h-16 left-20 text-amber-400 opacity-30 absolute top-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>
+                            </svg>
+                            <svg className="w-16 h-16 left-40 text-amber-400 opacity-30 absolute top-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>
+                            </svg>
+                            <svg className="w-16 h-16 left-60 text-amber-400 opacity-30 absolute top-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>
+                            </svg>
                             {/* 右侧内容 */}
                             <div className="p-6 md:w-2/3">
                                 <h2 className="text-xl font-semibold text-amber-800 mb-2">多选题练习</h2>
