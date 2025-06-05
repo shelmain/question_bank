@@ -37,7 +37,7 @@ export default function (){
     if (token) {
         return (<div>
             <Link href={'/print/multiple'}><Button>多选题打印</Button></Link>
-            <Link href={'/print/multiple'}><Button>单选题打印</Button></Link>
+            <Link href={'/print/single'}><Button>单选题打印</Button></Link>
             <Link href={'/print/judge'}><Button>判断题打印</Button></Link>
         </div>)
     }
