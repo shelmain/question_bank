@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
         config.output.chunkFilename = `static/chunks/[name].[contenthash].js`;
         return config;
     },
+    images: {
+        domains: ['images.unsplash.com'],
+    },
     // 添加资产前缀（如果使用CDN）
     assetPrefix: process.env.CDN_URL || '',
   /* config options here */
