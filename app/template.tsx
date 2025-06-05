@@ -36,39 +36,60 @@ export default function DashboardTemplate({ children }: Readonly<{
   };
   if(token){
     return (
-      <div> {/* 每次导航触发动画 */}
-        {children}
-      </div>
+        <div> {/* 每次导航触发动画 */}
+          {children}
+        </div>
     )
   }
-  return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-500 to-emerald-500 text-white">
-        <div className="bg-opacity-80 bg-[#ffffff00] p-8 rounded-lg max-w-md w-full">
-          <h1 className="text-4xl font-bold text-center mb-6">验证身份</h1>
-          <p className="text-lg text-center mb-8">
-            请扫描二维码添加好友付款后可获得验证码。
-          </p>
-          <div className="flex justify-center mb-8">
-            <Image src={qrcode} alt="QR Code" width={200} height={200} />
-          </div>
-          <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-              placeholder="请输入验证码"
-          />
-          <Button
-              onClick={handleVerify}
-              className="bg-blue-500 hover:bg-blue-700 text-white w-full"
-          >
-            验证
-          </Button>
-          {isValid === false && (
-              <p className="text-red-500 mt-2">验证码无效，请重新输入。</p>
-          )}
-        </div>
-      </div>
-  )
 
+    return (
+        <div style={{
+          backgroundImage:`url(https://wx2.sinaimg.cn/mw690/005K3dRrly1hrc2hiygwtj31ko2t4kjm.jpg)`
+        }} className="min-h-screen  bg-amber-50 flex items-center justify-center p-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden w-full max-w-md border border-amber-200">
+            <div className="bg-amber-100 p-6 text-center">
+              <h1 className="text-2xl font-bold text-amber-800">验证身份</h1>
+            </div>
+            <div className="p-6 relative">
+              {/* 装饰性小气泡 */}
+              <div className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-amber-200 opacity-30"></div>
+              <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-amber-300 opacity-20"></div>
+
+              <div className="text-center mb-6">
+                <p className="text-amber-700 mb-4">请扫描二维码获取验证码</p>
+                <div className="flex justify-center mb-6">
+                  <div className="border-2 border-amber-200 rounded-lg p-2 bg-white/80">
+                    <Image
+                        src={qrcode}
+                        alt="QR Code"
+                        width={180}
+                        height={180}
+                        className="rounded"
+                    />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <input
+                      type="text"
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white/80"
+                      placeholder="请输入验证码"
+                  />
+                  {isValid === false && (
+                      <p className="text-red-400 mt-2 text-sm">验证码无效，请重新输入</p>
+                  )}
+                </div>
+                <Button
+                    onClick={handleVerify}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-lg transition"
+                    size="large"
+                >
+                  验证
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+    )
 }
