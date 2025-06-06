@@ -1,18 +1,19 @@
 "use client";
 import Link from "next/link";
 import { Button } from "antd";
+import bg from '@/public/asset/imgs/bg.jpeg'
 
 export default function Home() {
         return (
-            <div  style={{
-                backgroundImage:`url(https://wx2.sinaimg.cn/mw690/005K3dRrly1hrc2hiygwtj31ko2t4kjm.jpg)`
-            }} className="min-h-screen bg-amber-50 bg-no-repeat bg-center">
-                {/* 气泡背景装饰 */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-20 left-10 w-40 h-40 rounded-full bg-amber-100 opacity-20 blur-xl animate-float"></div>
-                    <div className="absolute top-1/3 right-20 w-32 h-32 rounded-full bg-amber-200 opacity-15 blur-xl animate-float-delay"></div>
-                    <div className="absolute bottom-20 left-1/4 w-24 h-24 rounded-full bg-amber-300 opacity-10 blur-xl animate-float"></div>
-                </div>
+            <div style={{
+                backgroundImage: `url(${bg})`
+            }} className="min-h-screen   bg-center">
+                {/*/!* 气泡背景装饰 *!/*/}
+                {/*<div className="fixed inset-0 overflow-hidden pointer-events-none">*/}
+                {/*    <div className="absolute top-20 left-10 w-40 h-40 rounded-full bg-amber-100 opacity-20 blur-xl animate-float"></div>*/}
+                {/*    <div className="absolute top-1/3 right-20 w-32 h-32 rounded-full bg-amber-200 opacity-15 blur-xl animate-float-delay"></div>*/}
+                {/*    <div className="absolute bottom-20 left-1/4 w-24 h-24 rounded-full bg-amber-300 opacity-10 blur-xl animate-float"></div>*/}
+                {/*</div>*/}
 
                 <div className="container mx-auto px-4 py-12 relative z-10">
                     <header className="text-center mb-12">
@@ -63,11 +64,7 @@ export default function Home() {
                     <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden border border-amber-200 hover:shadow-md transition-all duration-300 hover:-translate-y-1 mb-8">
                         <div className="md:flex">
                             {/* 左侧 - 竹叶纹理 */}
-                            <div className="w-full bg-center bg-contain h-50 "
-                                 style={{
-                                     backgroundImage: `url('https://wx2.sinaimg.cn/mw690/007lc0bkgy1hvys8gz6ihj30u01syqc1.jpg')`
-                                 }}
-                                    />
+
                             <svg className="w-16 h-16   text-amber-400 opacity-30 absolute top-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M12 2L3 12L12 22L21 12L12 2Z" strokeWidth="1"/>
                             </svg>
