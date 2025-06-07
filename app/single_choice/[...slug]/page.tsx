@@ -89,9 +89,9 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
 
     if (isCorrect !== null) return; // 已经回答过的不再处理
 
-
     setSelectedOption(option);
-    const correct = option === questions[currentIndex].题目答案;
+    const correct = questions[currentIndex].题目答案?.includes(option);
+    // console.log('当前item：',correct,"回答：",option,"正确答案：",questions[currentIndex].题目答案,"currentIndex",currentIndex )
     setIsCorrect(correct);
     console.log("handleOptionSelect",correct);
     setShowExplanation(true);
