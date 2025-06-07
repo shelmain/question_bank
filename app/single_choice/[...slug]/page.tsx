@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import Head from 'next/head';
 import QuestionCard from '../../components/QuestionCard';
 import ProgressBar from '../../components/ProgressBar';
-import {fetchSingleData} from "@/utils/common";
+import {fetchJudgeData, fetchSingleData} from "@/utils/common";
 import {Button} from "antd";
 import Link from "next/link";
 
@@ -21,7 +21,7 @@ interface Question {
 }
 
 export default function Practice(props:{params:Promise<{slug:string[]}>}) {
-  const [page=0,index=0] = React.use(props?.params)?.slug;
+  const [page=0,index=0,type="single"] = React.use(props?.params)?.slug;
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,11 +33,21 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
   const [loaded, setLoaded] = useState(false);
   const [orderNumber,setOrderNumber] = useState(0);
   const router = useRouter();
-
+  const [keys, setKeys] = useState<string[]>([]);
   useEffect(() => {
     getHistoryData(currentIndex);
   }, [currentIndex]);
   useEffect(() => {
+    console.log(type);
+    let keyArray = []
+    let getData = type === "judge" ? fetchJudgeData:fetchSingleData
+    if(type === "judge"){
+      keyArray=["yourJudgeAnswer","historyJudgeAnswer","currentJudgeIndex","judgeNumber"]
+      setKeys(["yourJudgeAnswer","historyJudgeAnswer","currentJudgeIndex","judgeNumber"]);
+    }else{
+      keyArray = ["yourAnswer",'historyAnswer','currentIndex','singleNumber']
+      setKeys(["yourAnswer",'historyAnswer','currentIndex','singleNumber']);
+    }
     if(page != "-1"){
       // 第几次历史记录
       setOrderNumber(+page);
@@ -45,8 +55,8 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
       if(index != "-1"){
         console.log("序号",index);
         setCurrentIndex(+index-1);
-        const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]")?.find((i:any)=>i.序号 == index);
-        console.log("historyAnswer",historyAnswer?.isCorrect,historyAnswer)
+        const historyAnswer = JSON.parse(localStorage.getItem(keyArray[0]+""+orderNumber) || "[]")?.find((i:any)=>i.序号 == index);
+        console.log(keyArray[1]+""+"",historyAnswer?.isCorrect,historyAnswer)
         setIsCorrect(historyAnswer?.isCorrect);
         setSelectedOption(historyAnswer?.yourAnswer || [])
         if(historyAnswer?.isCorrect !== null){
@@ -59,23 +69,26 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
         // setCurrentIndex(localStorage.getItem("currentIndex"+orderNumber)?JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || ""):  0)
       }
     }else{
-      const orderNumber = JSON.parse(localStorage.getItem("singleNumber") || "0");
-      setCurrentIndex(JSON.parse(localStorage.getItem("currentIndex"+orderNumber) || "0"))
+      console.log("key2",keyArray[2],keyArray);
+      const orderNumber = JSON.parse(localStorage.getItem(keyArray[3]) || "0");
+      setCurrentIndex(JSON.parse(localStorage.getItem(keyArray[2]+""+orderNumber) || "0"))
       setOrderNumber(+orderNumber||0)
       // 列表模式过来的,不用设置数据源
       if(index != "-1"){
         setCurrentIndex(+index-1);
         setOrderNumber(orderNumber +1)
       }else{
-        localStorage.setItem("currentIndex"+(+orderNumber+1), JSON.stringify(currentIndex));
+        localStorage.setItem(keyArray[2]+""+(+orderNumber+1), JSON.stringify(currentIndex));
 
       }
     }
 
     // 所有对的数量
-    setScore(localStorage.getItem("yourAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0):  0)
-    setError(localStorage.getItem("yourMultipleAnswer"+orderNumber)?JSON.parse(localStorage.getItem("yourMultipleAnswer"+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect === false ? 1+current : current,0):  0)
-    fetchSingleData().then((res:any)=>{
+    console.log("keys0",keyArray[0]+""+orderNumber);
+    setScore(JSON.parse(localStorage.getItem(keyArray[0]+""+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect+current,0))
+    setError(localStorage.getItem(keys[0]+""+orderNumber)?JSON.parse(localStorage.getItem(keys[0]+""+orderNumber) || "[]").reduce((current:number,item:any)=>item.isCorrect === false ? 1+current : current,0):  0)
+
+    getData().then((res:any)=>{
         setQuestions(res)
         setLoaded(true)
       }).catch(()=>{
@@ -96,10 +109,10 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     console.log("handleOptionSelect",correct);
     setShowExplanation(true);
 //存答案
-    const historyAnswer = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]");
+    const historyAnswer = JSON.parse(localStorage.getItem(keys[0]+""+orderNumber) || "[]");
     console.log("存答案",currentIndex);
-    localStorage.setItem("yourAnswer"+orderNumber, JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option,isCorrect:correct}]));
-    localStorage.setItem("currentIndex"+orderNumber, JSON.stringify(currentIndex));
+    localStorage.setItem(keys[0]+""+orderNumber, JSON.stringify([...historyAnswer,{...questions[currentIndex],yourAnswer:option,isCorrect:correct}]));
+    localStorage.setItem(keys[2]+""+orderNumber, JSON.stringify(currentIndex));
     if (correct) {
       setScore(prev => prev + 1);
       setTimeout(() => {
@@ -112,11 +125,11 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
           setCurrentIndex((prev:number) => prev + 1);
         } else {
           //记录练习了几次
-          localStorage.setItem("singleNumber", JSON.stringify(orderNumber+1) );
+          localStorage.setItem(keys[3], JSON.stringify(orderNumber+1) );
           // 下一次重制为零
-          localStorage.setItem("currentIndex"+(orderNumber+1), JSON.stringify(0));
+          localStorage.setItem(keys[2]+""+(orderNumber+1), JSON.stringify(0));
           // 所有题目完成，跳转到结果页
-          router.push(`/result/${score}/${questions.length}`,
+          router.push(`/result/${score}/${questions.length}/${errorNumber}`,
           );
         }
       },500)
@@ -127,11 +140,11 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
   };
   // 列表模式
   const toListPage = () => {
-    router.replace(`/list/single/-1`)
+    router.replace(`/list/${type}/-1`)
   }
   // 练习记录
   const toHistory = ()=>{
-    router.replace(`/orderList/single`)
+    router.replace(`/orderList/${type}`)
 
   }
   // 上一页
@@ -145,7 +158,7 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
     if(questions.length < 1 ) return;
     console.log("<UNK>",targetIndex,currentIndex,questions);
     const index = questions[targetIndex].序号;
-    const allData = JSON.parse(localStorage.getItem("yourAnswer"+orderNumber) || "[]");
+    const allData = JSON.parse(localStorage.getItem(keys[0]+""+orderNumber) || "[]");
     console.log("index",allData)
     const item = allData?.find((i:any)=>i.序号 === index);
     if(item){
@@ -169,10 +182,10 @@ export default function Practice(props:{params:Promise<{slug:string[]}>}) {
       setCurrentIndex((prev:number) => prev + 1);
     } else {
      //记录练习了几次
-      localStorage.setItem("singleNumber", JSON.stringify(orderNumber+1) );
-      console.log(orderNumber,"currentIndex"+(orderNumber+1));
+      localStorage.setItem(keys[3], JSON.stringify(orderNumber+1) );
+      console.log(orderNumber,keys[2]+""+(orderNumber+1));
       // 下一次重制为零
-      localStorage.setItem("currentIndex"+(orderNumber+1), JSON.stringify(0));
+      localStorage.setItem(keys[2]+""+(orderNumber+1), JSON.stringify(0));
       // 所有题目完成，跳转到结果页
       router.replace(`/result/${score}/${questions.length}/${errorNumber}`,
       );
