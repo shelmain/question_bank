@@ -13,7 +13,7 @@ export default function DashboardTemplate({ children }: Readonly<{
   // console.log('sldfkjslkdfjlk')
   useEffect(() => {
     // 检查是否有 token
-    const storedToken = JSON.parse(localStorage.getItem("token") || "");
+    const storedToken = JSON.parse(localStorage.getItem("token"));
     if (storedToken) {
       setToken(storedToken);
     }
